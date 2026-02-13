@@ -41,3 +41,27 @@ func TestCleanInput(t *testing.T) {
 		}
 	}
 }
+
+func TestGetCommands(t *testing.T) {
+	commands := getCommands()
+
+	exitCmd, ok := commands["exit"]
+	if !ok {
+		t.Errorf("exit command not found in registry")
+	}
+
+	expectedDesc := "Exit the Pokedex"
+	if exitCmd.description != expectedDesc {
+		t.Errorf("expected description %v, got %v", expectedDesc, exitCmd.description)
+	}
+
+	helpCmd, ok := commands["help"]
+	if !ok {
+		t.Errorf("help command not found in registry")
+	}
+
+	expectedDesc = "Displays a help message"
+	if helpCmd.description != expectedDesc {
+		t.Errorf("expected description %v, got %v", expectedDesc, helpCmd.description)
+	}
+}
