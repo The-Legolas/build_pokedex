@@ -1,11 +1,49 @@
 package main
 
 import (
-	"encoding/json"
+	//"encoding/json"
+	//"fmt"
+	//"io"
+	//"net/http"
+	"errors"
 	"fmt"
-	"io"
-	"net/http"
 )
+
+func commandMapf(cfg *config, _ []string) error {
+	locationsResp, err := cfg.pokeapiClient.ListLocations(cfg.nextLocationsURL)
+	if err != nil {
+		return err
+	}
+
+	cfg.nextLocationsURL = locationsResp.Next
+	cfg.prevLocationsURL = locationsResp.Previous
+
+	for _, loc := range locationsResp.Results {
+		fmt.Println(loc.Name)
+	}
+	return nil
+}
+
+func commandMapb(cfg *config, _ []string) error {
+	if cfg.prevLocationsURL == nil {
+		return errors.New("you're on the first page")
+	}
+
+	locationResp, err := cfg.pokeapiClient.ListLocations(cfg.prevLocationsURL)
+	if err != nil {
+		return err
+	}
+
+	cfg.nextLocationsURL = locationResp.Next
+	cfg.prevLocationsURL = locationResp.Previous
+
+	for _, loc := range locationResp.Results {
+		fmt.Println(loc.Name)
+	}
+	return nil
+}
+
+/*
 
 func commandMap(cfg *config) error {
 	url := "https://pokeapi.co/api/v2/location-area"
@@ -58,3 +96,4 @@ type ShallowLocationsResp struct {
 		URL  string `json:"url"`
 	} `json:"results"`
 }
+*/

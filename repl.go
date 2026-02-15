@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/The-Legolas/build_pokedex/internal/pokeapi"
 )
 
 func startRepl(cfg *config) {
@@ -19,10 +21,11 @@ func startRepl(cfg *config) {
 		}
 
 		commandName := words[0]
+		args := words[1:]
 
 		command, exists := getCommands()[commandName]
 		if exists {
-			err := command.callback(cfg)
+			err := command.callback(cfg, args)
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -41,6 +44,7 @@ func cleanInput(text string) []string {
 }
 
 type config struct {
+	pokeapiClient    pokeapi.Client
 	nextLocationsURL *string
 	prevLocationsURL *string
 }
@@ -48,7 +52,7 @@ type config struct {
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(*config) error
+	callback    func(*config, []string) error
 }
 
 func getCommands() map[string]cliCommand {
@@ -65,13 +69,18 @@ func getCommands() map[string]cliCommand {
 		},
 		"map": {
 			name:        "map",
-			description: "Displays the first 20 map names of the current page and then goes to the next page if called again",
-			callback:    commandMap,
+			description: "Get the next page of locations",
+			callback:    commandMapf,
 		},
 		"mapb": {
 			name:        "mapb",
-			description: "Displays the previous page's list of map names until the user hits the very first page",
+			description: "Get the previous page of locations",
 			callback:    commandMapb,
+		},
+		"explore": {
+			name:        "explore",
+			description: "Get a map's list of pokemon",
+			callback:    commandExplore,
 		},
 	}
 }
